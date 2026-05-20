@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>F+H Singapore Demo — Case Study: Amber Zhou</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.8.0/tabler-icons.min.css">
+  <style>
+    /* ====================================================
+       TOKENS — change brand colors here
+    ==================================================== */
+    :root {
+      --brand:      #185FA5;
+      --brand-dark: #042C53;
+      --info-bg:    #E6F1FB;
+      --info:       #0C447C;
+      --text:       #2C2C2A;
+      --text-sec:   #888780;
+      --text-muted: #B4B2A9;
+      --border:     #D3D1C7;
+      --green:      #0F6E56;
+      --green-bg:   #E1F5EE;
+      --amber:      #633806;
+      --amber-bg:   #FAEEDA;
+      --pink:       #C92566;
+      --bg-light:   #F5F4F0;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      background: linear-gradient(160deg, #061523 0%, #0B2942 45%, #102E50 100%);
+      font-family: -apple-system, 'SF Pro Text', BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 20px 16px 24px;
+      gap: 10px;
+    }
+    .page-tag {
+      font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: rgba(255,255,255,0.3); font-weight: 500;
+    }
+
+    /* Phone chrome */
+    .phone {
+      width: 390px;
+      height: min(84vh, 820px);
+      min-height: 680px;
+      border-radius: 46px;
+      border: 10px solid #1C1C1E;
+      position: relative;
+      overflow: hidden;
+      background: white;
+      box-shadow:
+        0 60px 160px rgba(0,0,0,0.65),
+        0 20px 60px rgba(0,0,0,0.35),
+        0 0 0 1px rgba(255,255,255,0.07);
+    }
+
+    /* Screens */
+    .sc, .scf {
+      position: absolute; inset: 0;
+      display: none; background: white;
+      -webkit-overflow-scrolling: touch;
+    }
+    .sc  { overflow-y: auto; }
+    .scf { flex-direction: column; }
+    .sc::-webkit-scrollbar { display: none; }
+    .sc.on  { display: block; }
+    .scf.on { display: flex; }
+
+    /* Status bars */
+    .sbar { height: 26px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+    .sbar-dark  { background: var(--brand-dark); color: white; }
+    .sbar-light { background: white; color: var(--text); }
+    .sbar i { font-size: 13px; }
+
+    /* Headers */
+    .hdr { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+    .hdr-title { font-size: 14px; font-weight: 500; color: var(--text); }
+    .back { font-size: 16px; color: var(--text); cursor: pointer; flex-shrink: 0; }
+    .edit { font-size: 14px; color: var(--brand); margin-left: auto; }
+
+    /* Step indicator */
+    .steps { display: flex; align-items: center; gap: 5px; padding: 8px 14px 10px; flex-shrink: 0; }
+    .step-pill { display: flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 10px; }
+    .step-pill.active { background: var(--info-bg); }
+    .step-num { width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 600; flex-shrink: 0; }
+    .step-num.on  { background: var(--brand); color: white; }
+    .step-num.off { border: 1px solid var(--border); color: var(--text-sec); }
+    .step-lbl     { font-size: 11px; }
+    .step-lbl.on  { color: var(--info); font-weight: 500; }
+    .step-lbl.off { color: var(--text-sec); }
+
+    /* Fields */
+    .field { border: 0.5px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text); }
+    .field-fw { flex-direction: column; align-items: stretch; gap: 0; }
+
+    /* Buttons */
+    .btn { background: var(--brand); color: white; padding: 13px; text-align: center; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; width: 100%; transition: opacity 0.15s; }
+    .btn:active { opacity: 0.85; }
+
+    /* Chips */
+    .chip { padding: 4px 10px; border: 0.5px solid var(--border); border-radius: 14px; font-size: 11px; color: #444441; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 3px; }
+
+    /* Hotel cards */
+    .hcard { border: 0.5px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 7px; cursor: pointer; display: flex; gap: 9px; transition: background 0.12s; }
+    .hcard:active { background: var(--info-bg); }
+    .himg { width: 60px; height: 60px; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .hname  { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hmeta  { font-size: 10px; color: var(--text-sec); margin: 2px 0; }
+    .hprice { font-size: 13px; font-weight: 500; color: var(--text); }
+    .hsave  { font-size: 10px; color: var(--brand); margin-top: 1px; }
+    .hfree  { font-size: 10px; color: var(--green); background: var(--green-bg); padding: 2px 5px; border-radius: 4px; white-space: nowrap; }
+
+    /* Flight rows */
+    .frow { padding: 11px 14px; border-bottom: 0.5px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.12s; }
+    .frow:hover { background: #FAFAF9; }
+    .frow.sel   { background: var(--info-bg); border-left: 2.5px solid var(--brand); }
+    .frow.sel:hover { background: var(--info-bg); }
+    .fbadge  { font-size: 9px; padding: 2px 6px; border-radius: 10px; background: var(--green); color: white; display: inline-block; margin-bottom: 2px; }
+    .frow-al { font-size: 10px; color: var(--text-sec); }
+    .ftime   { font-size: 14px; font-weight: 500; color: var(--text); margin: 1px 0; }
+    .fdur    { font-size: 10px; color: var(--text-sec); }
+    .fbag    { font-size: 10px; color: var(--text-sec); margin-top: 2px; }
+    .fprice  { font-size: 12px; font-weight: 500; margin-left: auto; text-align: right; flex-shrink: 0; }
+
+    /* Bundle card */
+    .bcard  { background: var(--amber-bg); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+    .btitle { font-size: 11px; font-weight: 500; color: var(--amber); margin-bottom: 6px; }
+    .brow   { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--amber); margin-bottom: 4px; }
+    .brow:last-child { margin-bottom: 0; }
+
+    /* Price rows */
+    .prow { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; color: #444441; }
+    .ptotal { display: flex; justify-content: space-between; align-items: flex-end; }
+    .ptotal-num { font-size: 20px; font-weight: 500; color: var(--text); }
+
+    /* Room cards */
+    .rcard { border: 0.5px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+    .rimg  { height: 74px; display: flex; align-items: center; justify-content: center; position: relative; }
+    .rbody { padding: 10px; }
+    .rname  { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .rspecs { display: flex; gap: 10px; font-size: 10px; color: var(--text-sec); margin-bottom: 5px; flex-wrap: wrap; }
+    .rtags  { display: flex; gap: 5px; font-size: 10px; color: var(--text-sec); margin-bottom: 7px; flex-wrap: wrap; }
+    .rprices { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .rold  { font-size: 11px; padding: 2px 7px; border-radius: 10px; background: #F1EFE8; color: #444441; white-space: nowrap; }
+    .rvs   { font-size: 11px; color: var(--text-muted); }
+    .rnew  { display: flex; align-items: center; gap: 2px; background: var(--brand); color: white; padding: 2px 7px; border-radius: 10px; font-size: 11px; white-space: nowrap; }
+    .rsel  { background: var(--brand); color: white; font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+
+    /* Split view */
+    .sbody { flex: 1; display: flex; overflow: hidden; }
+    .sleft { width: 120px; flex-shrink: 0; background: var(--bg-light); border-right: 0.5px solid var(--border); overflow-y: auto; padding: 12px 10px; }
+    .sright { flex: 1; overflow-y: auto; }
+    .sbot { flex-shrink: 0; background: var(--brand); padding: 11px 14px; color: white; display: flex; align-items: center; gap: 10px; }
+    .sbot-price { font-size: 13px; font-weight: 500; flex: 1; }
+    .sbot-det { font-size: 11px; padding: 5px 10px; border: 1px solid rgba(255,255,255,0.4); border-radius: 6px; white-space: nowrap; cursor: pointer; }
+    .sbot-go  { font-size: 12px; font-weight: 500; background: white; color: var(--brand); padding: 7px 14px; border-radius: 6px; white-space: nowrap; cursor: pointer; }
+    .sbot-go:active { opacity: 0.8; }
+
+    /* Sections (enter info) */
+    .sec   { padding: 10px 14px; border-bottom: 0.5px solid var(--border); }
+    .stitle { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+    .irow  { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
+    .irow:last-child { margin-bottom: 0; }
+    .brand-link { font-size: 11px; color: var(--brand); cursor: pointer; }
+
+    /* Dots + label */
+    .dots  { display: flex; gap: 7px; align-items: center; }
+    .dot   { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.2s; }
+    .dot.on { width: 9px; height: 9px; background: white; }
+    .slabel { font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.3px; }
+
+    /* Watermark */
+    .watermark {
+      position: fixed; bottom: 16px; right: 20px;
+      font-size: 11px; color: rgba(255,255,255,0.22);
+      font-weight: 500; letter-spacing: 0.4px;
+      pointer-events: none; z-index: 9999; user-select: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="watermark">Case Study：Amber Zhou</div>
+<p class="page-tag">Trip.com F+H · Singapore · Product Demo</p>
+
+<div class="phone">
+
+<!-- ================================================
+     S0: F+H SEARCH FORM
+     CHANGED: (1) Return tab is default
+              (2) Hero copy updated
+================================================ -->
+<div class="sc on" id="s0">
+  <div class="sbar sbar-dark">
+    <span>10:22</span>
+    <div style="display:flex;gap:4px;"><i class="ti ti-wifi"></i><i class="ti ti-battery-3"></i></div>
+  </div>
+  <div style="background:var(--brand-dark);padding:10px 14px 28px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+      <i class="ti ti-arrow-left" style="color:white;font-size:17px;"></i>
+      <span style="color:white;font-weight:500;font-size:15px;">Trip.com</span>
+    </div>
+    <!-- CHANGED: was "The smart way to save:" -->
+    <p style="color:#FFD700;font-size:12px;margin:0 0 3px;">One booking. Zero juggling.</p>
+    <p style="color:white;font-size:17px;font-weight:500;margin:0;line-height:1.3;">Book flight and hotel<br>together!</p>
+  </div>
+  <div style="background:white;border-radius:14px 14px 0 0;margin-top:-13px;padding:12px 14px;">
+    <!-- Tabs: CHANGED — Return is active by default -->
+    <div style="display:flex;border-bottom:0.5px solid var(--border);margin-bottom:12px;">
+      <div style="padding:7px 14px;font-size:13px;color:var(--text-sec);">One-way</div>
+      <div style="padding:7px 14px;font-size:13px;font-weight:500;color:var(--brand);border-bottom:2px solid var(--brand);margin-bottom:-0.5px;">Return</div>
+    </div>
+    <!-- Origin/Dest -->
+    <div class="field field-fw">
+      <div style="display:flex;align-items:center;gap:7px;padding:3px 0;">
+        <i class="ti ti-plane-departure" style="font-size:14px;color:var(--text-sec);"></i>
+        <span style="font-weight:500;font-size:13px;">Singapore</span>
+      </div>
+      <div style="height:0.5px;background:var(--border);margin:5px 0;position:relative;">
+        <div style="position:absolute;right:0;top:-10px;width:20px;height:20px;border:0.5px solid var(--border);border-radius:4px;background:white;display:flex;align-items:center;justify-content:center;">
+          <i class="ti ti-arrows-up-down" style="font-size:11px;color:#444441;"></i>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;padding:3px 0;">
+        <i class="ti ti-plane-arrival" style="font-size:14px;color:var(--text-sec);"></i>
+        <span style="font-weight:500;font-size:13px;">Kuala Lumpur</span>
+      </div>
+    </div>
+    <!-- Date range (return) -->
+    <div class="field">
+      <i class="ti ti-calendar" style="font-size:14px;color:var(--text-sec);"></i>
+      <span style="font-size:13px;font-weight:500;flex:1;">Fri, May 15 – Sun, May 17</span>
+      <span style="font-size:11px;color:#5F5E5A;background:#F1EFE8;padding:2px 7px;border-radius:10px;">2 nights</span>
+    </div>
+    <!-- Pax -->
+    <div class="field" style="font-size:12px;color:#444441;gap:3px;flex-wrap:wrap;">
+      <i class="ti ti-briefcase" style="font-size:13px;color:var(--text-sec);"></i><span>1</span>
+      <i class="ti ti-user" style="font-size:13px;color:var(--text-sec);margin-left:4px;"></i><span>2</span>
+      <i class="ti ti-heart" style="font-size:13px;color:var(--text-sec);margin-left:4px;"></i><span>0</span>
+      <i class="ti ti-mood-happy" style="font-size:13px;color:var(--text-sec);margin-left:4px;"></i><span>0</span>
+      <span style="margin:0 4px;color:var(--border);">|</span>
+      <span>Economy</span><i class="ti ti-chevron-down" style="font-size:12px;color:var(--text-sec);margin-left:2px;"></i>
+    </div>
+    <!-- Chips -->
+    <div style="display:flex;gap:6px;margin-bottom:9px;overflow:hidden;">
+      <div class="chip"><i class="ti ti-adjustments-horizontal" style="font-size:10px;"></i> Filters</div>
+      <div class="chip">5 Star</div><div class="chip">Hotel</div><div class="chip">Great 9+</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;">
+      <i class="ti ti-circle-plus" style="font-size:14px;color:#444441;"></i>
+      <span style="font-size:12px;color:#444441;">Stay at multiple hotels</span>
+    </div>
+    <!-- Save badge + Search -->
+    <div style="position:relative;padding-top:10px;">
+      <div style="position:absolute;top:0;right:10px;background:var(--pink);color:white;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;display:flex;align-items:center;gap:2px;">
+        <i class="ti ti-plane" style="font-size:9px;"></i>+<i class="ti ti-bed" style="font-size:9px;"></i>&nbsp;Save 6% on avg.
+      </div>
+      <div class="btn" onclick="nav(1)">Search</div>
+    </div>
+    <!-- Recently searched -->
+    <div style="margin-top:18px;">
+      <p style="font-size:13px;font-weight:500;margin:0 0 8px;">Recently searched</p>
+      <div style="border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div><p style="font-size:12px;font-weight:500;margin:0;">Singapore → Kuala Lumpur</p><p style="font-size:11px;color:var(--text-sec);margin:2px 0 0;">May 15 · 2 adults · 1 room</p></div>
+        <i class="ti ti-x" style="font-size:13px;color:var(--text-sec);"></i>
+      </div>
+      <div style="border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:flex-start;">
+        <div><p style="font-size:12px;font-weight:500;margin:0;">Singapore → Bangkok</p><p style="font-size:11px;color:var(--text-sec);margin:2px 0 0;">May 29 · 2 adults · 1 room</p></div>
+        <i class="ti ti-x" style="font-size:13px;color:var(--text-sec);"></i>
+      </div>
+    </div>
+    <!-- F+H Deals -->
+    <div style="margin-top:18px;padding-bottom:20px;">
+      <p style="font-size:13px;font-weight:500;margin:0 0 10px;">Flight + Hotel Deals</p>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;border:0.5px solid var(--border);border-radius:8px;overflow:hidden;">
+          <div style="height:64px;background:linear-gradient(135deg,#B5D4F4,#E6F1FB);display:flex;align-items:center;justify-content:center;"><i class="ti ti-building-skyscraper" style="font-size:28px;color:var(--info);"></i></div>
+          <div style="padding:7px 8px;"><p style="font-size:11px;font-weight:500;margin:0;">KL Weekend</p><p style="font-size:10px;color:var(--text-sec);margin:1px 0 0;">From S$ 320</p></div>
+        </div>
+        <div style="flex:1;border:0.5px solid var(--border);border-radius:8px;overflow:hidden;">
+          <div style="height:64px;background:linear-gradient(135deg,#9FE1CB,#E1F5EE);display:flex;align-items:center;justify-content:center;"><i class="ti ti-beach" style="font-size:28px;color:var(--green);"></i></div>
+          <div style="padding:7px 8px;"><p style="font-size:11px;font-weight:500;margin:0;">Bali Escape</p><p style="font-size:10px;color:var(--text-sec);margin:1px 0 0;">From S$ 580</p></div>
+        </div>
+        <div style="flex:1;border:0.5px solid var(--border);border-radius:8px;overflow:hidden;">
+          <div style="height:64px;background:linear-gradient(135deg,#F5C4B3,#FAECE7);display:flex;align-items:center;justify-content:center;"><i class="ti ti-torii-gate" style="font-size:28px;color:#993C1D;"></i></div>
+          <div style="padding:7px 8px;"><p style="font-size:11px;font-weight:500;margin:0;">Bangkok City</p><p style="font-size:10px;color:var(--text-sec);margin:1px 0 0;">From S$ 440</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================
+     S1: HOTEL RESULTS — Step 1 (H2)
+     CHANGED: Hotel-first step indicator, value on cards
+================================================ -->
+<div class="sc" id="s1">
+  <div class="sbar sbar-light">
+    <span>10:25</span>
+    <div style="display:flex;gap:4px;"><i class="ti ti-wifi"></i><i class="ti ti-battery-3"></i></div>
+  </div>
+  <div class="hdr" style="flex-direction:column;align-items:stretch;gap:9px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <i class="ti ti-arrow-left back" onclick="nav(0)"></i>
+      <div style="flex:1;">
+        <p style="font-size:13px;font-weight:500;margin:0;">Singapore → Kuala Lumpur</p>
+        <p style="font-size:10px;color:var(--text-sec);margin:1px 0 0;">15–17 May · 2 nights · 2 adults</p>
+      </div>
+      <i class="ti ti-edit edit"></i>
+    </div>
+    <div class="steps" style="padding:0;">
+      <div class="step-pill active"><div class="step-num on">1</div><span class="step-lbl on">Hotel</span></div>
+      <i class="ti ti-chevron-right" style="font-size:10px;color:var(--text-muted);"></i>
+      <div class="step-pill"><div class="step-num off">2</div><span class="step-lbl off">Flight</span></div>
+      <i class="ti ti-chevron-right" style="font-size:10px;color:var(--text-muted);"></i>
+      <div class="step-pill"><div class="step-num off">3</div><span class="step-lbl off">Review</span></div>
+    </div>
+  </div>
+  <div style="padding:11px 14px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;">
+      <span style="font-size:13px;font-weight:500;">Pick your hotel</span>
+      <span style="font-size:11px;color:var(--text-sec);">18 results</span>
+    </div>
+    <div style="display:flex;gap:5px;margin-bottom:11px;overflow:hidden;">
+      <div class="chip"><i class="ti ti-arrows-up-down" style="font-size:10px;"></i> Sort</div>
+      <div class="chip"><i class="ti ti-adjustments-horizontal" style="font-size:10px;"></i> Filters</div>
+      <div class="chip"><i class="ti ti-map-pin" style="font-size:10px;"></i> Location</div>
+      <div class="chip">Popular</div>
+    </div>
+    <div class="hcard" onclick="nav(2)">
+      <div class="himg" style="background:#B5D4F4;"><i class="ti ti-building" style="font-size:22px;color:var(--info);"></i></div>
+      <div style="flex:1;min-width:0;">
+        <p class="hname">PARKROYAL Collection KL</p><p class="hmeta">★★★★★ · 9.1/10 · Bukit Bintang MRT</p>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:5px;gap:4px;">
+          <div><p class="hprice">S$ 414 bundle</p><p class="hsave">Save S$28 vs separate · ~600 KF miles</p></div>
+          <span class="hfree">Free cancel</span>
+        </div>
+      </div>
+    </div>
+    <div class="hcard" onclick="nav(2)">
+      <div class="himg" style="background:#9FE1CB;"><i class="ti ti-building" style="font-size:22px;color:var(--green);"></i></div>
+      <div style="flex:1;min-width:0;">
+        <p class="hname">Hotel Stripes KL</p><p class="hmeta">★★★★ · 8.9/10 · Bukit Bintang</p>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:5px;gap:4px;">
+          <div><p class="hprice">S$ 373 bundle</p><p class="hsave">Save S$47 vs separate · ~600 KF miles</p></div>
+          <span class="hfree">Free cancel</span>
+        </div>
+      </div>
+    </div>
+    <div class="hcard" onclick="nav(2)">
+      <div class="himg" style="background:#D3D1C7;"><i class="ti ti-building" style="font-size:22px;color:#5F5E5A;"></i></div>
+      <div style="flex:1;min-width:0;">
+        <p class="hname">Expressionz Leisure KLCC</p><p class="hmeta">★★★★ · 7.7/10 · Petronas Towers</p>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:5px;gap:4px;">
+          <div><p class="hprice">S$ 326 bundle</p><p style="font-size:10px;color:var(--text-sec);margin-top:1px;">Same as separate · free cancel</p></div>
+          <span class="hfree">Free cancel</span>
+        </div>
+      </div>
+    </div>
+    <div class="hcard" onclick="nav(2)">
+      <div class="himg" style="background:#FAEEDA;"><i class="ti ti-building" style="font-size:22px;color:var(--amber);"></i></div>
+      <div style="flex:1;min-width:0;">
+        <p class="hname">The Westin Kuala Lumpur</p><p class="hmeta">★★★★★ · 9.0/10 · KLCC</p>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:5px;gap:4px;">
+          <div><p class="hprice">S$ 521 bundle</p><p class="hsave">Save S$31 vs separate · ~600 KF miles</p></div>
+          <span class="hfree">Free cancel</span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:10px 0 16px;font-size:12px;color:var(--brand);cursor:pointer;">View 14 more hotels</div>
+  </div>
+</div>
+
+<!-- ================================================
+     S2: ROOM SELECTION (Original Trip design)
+================================================ -->
+<div class="sc" id="s2">
+  <div class="sbar sbar-light">
+    <span>11:22</span>
+    <div style="display:flex;gap:4px;"><i class="ti ti-wifi"></i><i class="ti ti-battery-3"></i></div>
+  </div>
+  <div class="hdr">
+    <i class="ti ti-arrow-left back" onclick="nav(1)"></i>
+    <p style="font-size:12px;font-weight:500;margin:0;line-height:1.3;">PARKROYAL Collection<br>Kuala Lumpur</p>
+  </div>
+  <div style="display:flex;border-bottom:0.5px solid var(--border);padding:0 14px;overflow:hidden;flex-shrink:0;">
+    <div style="padding:8px 10px;font-size:12px;color:var(--brand);border-bottom:2px solid var(--brand);white-space:nowrap;margin-bottom:-0.5px;">Room</div>
+    <div style="padding:8px 10px;font-size:12px;color:var(--text-sec);white-space:nowrap;">Amenities</div>
+    <div style="padding:8px 10px;font-size:12px;color:var(--text-sec);white-space:nowrap;">Location</div>
+    <div style="padding:8px 10px;font-size:12px;color:var(--text-sec);white-space:nowrap;">Reviews</div>
+    <div style="padding:8px 10px;font-size:12px;color:var(--text-sec);white-space:nowrap;">Description</div>
+  </div>
+  <div style="padding:12px 14px;">
+    <div class="rcard">
+      <div class="rimg" style="background:linear-gradient(135deg,#B5D4F4,#E6F1FB);">
+        <i class="ti ti-building-estate" style="font-size:32px;color:var(--info);"></i>
+        <div style="position:absolute;top:8px;left:8px;background:var(--info-bg);color:var(--info);font-size:10px;padding:2px 8px;border-radius:10px;">Recommended</div>
+      </div>
+      <div class="rbody">
+        <p class="rname">Urban Deluxe King Room</p>
+        <div class="rspecs">
+          <span><i class="ti ti-bed" style="font-size:10px;"></i> 1 king bed</span>
+          <span><i class="ti ti-ruler" style="font-size:10px;"></i> 38 sqm</span>
+          <span><i class="ti ti-wifi" style="font-size:10px;"></i> Free WiFi</span>
+          <span><i class="ti ti-eye" style="font-size:10px;"></i> City view</span>
+        </div>
+        <div class="rtags"><span>Non-smoking</span><span>·</span><span>Non-refundable</span><span>·</span><span>Prepay online</span><span>·</span><span>Instant confirm</span><span>·</span><span>2 adults</span></div>
+        <p class="brand-link" style="margin-bottom:10px;">See details</p>
+        <div class="rprices">
+          <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+            <span class="rold">S$ 442</span><span class="rvs">vs</span>
+            <div class="rnew"><i class="ti ti-plane" style="font-size:8px;"></i>+<i class="ti ti-bed" style="font-size:8px;"></i>&nbsp;S$ 414</div>
+          </div>
+          <div class="rsel" onclick="nav(3)">Select</div>
+        </div>
+        <p style="font-size:10px;color:var(--text-sec);margin:3px 0 0;">Incl. taxes & fees</p>
+      </div>
+    </div>
+    <div class="rcard">
+      <div class="rimg" style="background:#D3D1C7;">
+        <i class="ti ti-building-estate" style="font-size:26px;color:#888780;"></i>
+      </div>
+      <div class="rbody">
+        <p class="rname">Urban Deluxe Twin Room</p>
+        <div class="rspecs">
+          <span><i class="ti ti-bed" style="font-size:10px;"></i> 2 single beds</span>
+          <span><i class="ti ti-ruler" style="font-size:10px;"></i> 38 sqm</span>
+          <span><i class="ti ti-wifi" style="font-size:10px;"></i> Free WiFi</span>
+        </div>
+        <div class="rtags"><span>Non-smoking</span><span>·</span><span>Non-refundable</span><span>·</span><span>Prepay online</span><span>·</span><span>2 adults</span></div>
+        <p class="brand-link" style="margin-bottom:10px;">See details</p>
+        <div class="rprices">
+          <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+            <span class="rold">S$ 436</span><span class="rvs">vs</span>
+            <div class="rnew"><i class="ti ti-plane" style="font-size:8px;"></i>+<i class="ti ti-bed" style="font-size:8px;"></i>&nbsp;S$ 408</div>
+          </div>
+          <div class="rsel" onclick="nav(3)">Select</div>
+        </div>
+        <p style="font-size:10px;color:var(--text-sec);margin:3px 0 0;">Incl. taxes & fees</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================
+     S3: DEPARTURE FLIGHT (Original Trip design)
+================================================ -->
+<div class="sc" id="s3">
+  <div class="sbar sbar-light">
+    <span>11:24</span>
+    <div style="display:flex;gap:4px;"><i class="ti ti-wifi"></i><i class="ti ti-battery-3"></i></div>
+  </div>
+  <div class="hdr">
+    <i class="ti ti-arrow-left back" onclick="nav(2)"></i>
+    <div style="flex:1;">
+      <p style="font-size:13px;font-weight:500;margin:0;">Singapore → Kuala Lumpur</p>
+      <p style="font-size:10px;color:var(--text-sec);margin:1px 0 0;">2 adults · Economy · Return</p>
+    </div>
+  </div>
+  <div style="display:flex;border-bottom:0.5px solid var(--border);padding:0 14px;flex-shrink:0;">
+    <div style="padding:8px 0;margin-right:16px;font-size:12px;font-weight:500;color:var(--brand);border-bottom:2px solid var(--brand);margin-bottom:-0.5px;white-space:nowrap;">Fri, May 15</div>
+    <div style="padding:8px 0;font-size:12px;color:var(--text-muted);white-space:nowrap;">Sun, May 17</div>
+  </div>
+  <p style="font-size:11px;color:var(--text-sec);padding:8px 14px;background:#FAFAF9;border-bottom:0.5px solid var(--border);">Select departure · prices vs cheapest</p>
+  <div class="frow sel" id="df1" onclick="selDep(this)">
+    <div style="flex:1;min-width:0;">
+      <span class="fbadge">Cheapest</span>
+      <p class="frow-al">Batik Air</p><p class="ftime">12:30 → 13:30</p>
+      <p class="fdur">1h · Direct · SIN T4 → KUL T1</p>
+      <p class="fbag"><i class="ti ti-luggage" style="font-size:10px;"></i> 15kg checked</p>
+    </div>
+    <div class="fprice">
+      <p style="font-size:10px;color:var(--text-sec);margin-bottom:1px;">per person</p>
+      <p style="color:var(--brand);font-weight:500;">+S$ 0</p>
+    </div>
+  </div>
+  <div class="frow" id="df2" onclick="selDep(this)">
+    <div style="flex:1;min-width:0;">
+      <p class="frow-al">Malaysia Airlines</p><p class="ftime">07:35 → 08:50</p>
+      <p class="fdur">1h15m · Direct · SIN T2 → KUL T1</p>
+      <p class="fbag"><i class="ti ti-luggage" style="font-size:10px;"></i> 15kg checked</p>
+    </div>
+    <div class="fprice">
+      <p style="font-size:10px;color:var(--text-sec);margin-bottom:1px;">per person</p>
+      <p style="color:var(--green);font-weight:500;">− S$ 18</p>
+    </div>
+  </div>
+  <div class="frow" id="df3" onclick="selDep(this)">
+    <div style="flex:1;min-width:0;">
+      <p class="frow-al">Singapore Airlines</p><p class="ftime">13:30 → 14:30</p>
+      <p class="fdur">1h · Direct · SIN T3 → KUL T1</p>
+      <p class="fbag"><i class="ti ti-luggage" style="font-size:10px;"></i> 15kg checked</p>
+    </div>
+    <div class="fprice">
+      <p style="font-size:10px;color:var(--text-sec);margin-bottom:1px;">per person</p>
+      <p style="font-weight:500;">+ S$ 8</p>
+    </div>
+  </div>
+  <div class="frow" id="df4" onclick="selDep(this)">
+    <div style="flex:1;min-width:0;">
+      <p class="frow-al">Batik Air</p><p class="ftime">15:30 → 16:45</p>
+      <p class="fdur">1h15m · Direct · SIN T4 → KUL T1</p>
+      <p class="fbag"><i class="ti ti-luggage" style="font-size:10px;"></i> 15kg checked</p>
+    </div>
+    <div class="fprice">
+      <p style="font-size:10px;color:var(--text-sec);margin-bottom:1px;">per person</p>
+      <p style="font-weight:500;">+ S$ 18</p>
+    </div>
+  </div>
+  <div class="frow" id="df5" onclick="selDep(this)">
+    <div style="flex:1;min-width:0;">
+      <p class="frow-al">Singapore Airlines</p><p class="ftime">19:15 → 20:20</p>
+      <p class="fdur">1h05m · Direct · SIN T3 → KUL T1</p>
+      <p class="fbag"><i class="ti ti-luggage" style="font-size:10px;"></i> 15kg checked</p>
+    </div>
+    <div class="fprice">
+      <p style="font-size:10px;color:var(--text-sec);margin-bottom:1px;">per person</p>
+      <p style="font-weight:500;">+ S$ 89</p>
+    </div>
+  </div>
+  <div style="padding:12px 14px;">
+    <div style="display:flex;gap:8px;">
+      <i class="ti ti-info-circle" style="font-size:14px;color:var(--text-sec);flex-shrink:0;margin-top:1px;"></i>
+      <p style="font-size:11px;color:var(--text-sec);line-height:1.6;">Baggage & policies included in bundle. Tap a flight to select — return flights are next.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================
+     S4: RETURN FLIGHT — SPLIT VIEW (Original Trip, interactive)
+     Click flight → updates bottom bar price
+     Click Continue → proceed to Review
+================================================ -->
+<div class="scf" id="s4">
+  <div class="sbar sbar-light">
+    <span>11:26</span>
+    <div style="display:flex;gap:4px;"><i class="ti ti-wifi"></i><i class="ti ti-battery-3"></i></div>
+  </div>
+  <div class="hdr">
+    <i class="ti ti-arrow-left back" onclick="nav(3)"></i>
+    <div style="flex:1;">
+      <p style="font-size:13px;font-weight:500;margin:0;">Kuala Lumpur → Singapore</p>
+      <p style="font-size:10px;color:var(--text-sec);margin:1px 0 0;">Return · 2 adults · Economy</p>
+    </div>
+  </div>
+  <!-- Column labels -->
+  <div style="display:flex;border-bottom:0.5px solid var(--border);flex-shrink:0;">
+    <div style="width:120px;flex-shrink:0;padding:7px 10px;font-size:11px;font-weight:500;color:var(--text-sec);background:var(--bg-light);border-right:0.5px solid var(--border);">Dep · Fri 15 May</div>
+    <div style="flex:1;padding:7px 14px;font-size:11px;font-weight:500;color:var(--brand);">Return · Sun 17 May</div>
+  </div>
+  <div class="sbody">
+    <!-- Left: locked departure -->
+    <div class="sleft">
+      <div style="background:var(--info-bg);border-radius:8px;padding:8px;text-align:center;">
+        <div style="display:inline-flex;align-items:center;gap:3px;font-size:9px;color:var(--info);font-weight:500;background:white;padding:2px 6px;border-radius:8px;margin-bottom:6px;">
+          <i class="ti ti-check" style="font-size:9px;"></i> Locked
+        </div>
+        <p style="font-size:11px;font-weight:500;color:var(--text);margin:0 0 2px;">12:30 → 13:30</p>
+        <p style="font-size:9px;color:var(--text-sec);margin:0 0 6px;">Batik Air · 1h</p>
+        <i class="ti ti-plane" style="font-size:22px;color:var(--brand);"></i>
+        <p style="font-size:9px;color:var(--text-sec);margin:4px 0 0;">SIN T4 → KUL T1</p>
+        <div style="margin-top:8px;border-top:0.5px solid var(--border);padding-top:6px;">
+          <p style="font-size:9px;color:var(--text-sec);">15kg checked</p>
+        </div>
+      </div>
+      <div style="margin-top:10px;text-align:center;">
+        <span class="brand-link" style="font-size:10px;" onclick="nav(3)">Change dep.</span>
+      </div>
+    </div>
+    <!-- Right: return flights (interactive) -->
+    <div class="sright">
+      <div class="frow sel" id="rf1" onclick="selRet(this,0)">
+        <div style="flex:1;min-width:0;">
+          <p class="frow-al">Malaysia Airlines</p><p class="ftime">10:10 → 11:30</p>
+          <p class="fdur">1h20m · KUL T1 → SIN T2</p>
+          <p class="fbag"><i class="ti ti-luggage" style="font-size:10px;"></i> 15kg</p>
+        </div>
+        <div class="fprice" style="font-size:11px;">
+          <p style="font-size:9px;color:var(--text-sec);margin-bottom:1px;">add-on</p>
+          <p style="color:var(--green);font-weight:500;">+S$ 0</p>
+        </div>
+      </div>
+      <div class="frow" id="rf2" onclick="selRet(this,8)">
+        <div style="flex:1;min-width:0;">
+          <p class="frow-al">Batik Air</p><p class="ftime">12:35 → 14:05</p>
+          <p class="fdur">1h30m · KUL T1 → SIN T4</p>
+          <p class="fbag"><i class="ti ti-luggage" style="font-size:10px;"></i> 15kg</p>
+        </div>
+        <div class="fprice" style="font-size:11px;">
+          <p style="font-size:9px;color:var(--text-sec);margin-bottom:1px;">add-on</p>
+          <p style="font-weight:500;">+S$ 8</p>
+        </div>
+      </div>
+      <div class="frow" id="rf3" onclick="selRet(this,18)">
+        <div style="flex:1;min-width:0;">
+          <p class="frow-al">Singapore Airlines</p><p class="ftime">14:50 → 16:00</p>
+          <p class="fdur">1h10m · KUL T1 → SIN T3</p>
+          <p class="fbag"><i class="ti ti-luggage" style="font-size:10px;"></i> 15kg</p>
+        </div>
+        <div class="fprice" style="font-size:11px;">
+          <p style="font-size:9px;color:var(--text-sec);margin-bottom:1px;">add-on</p>
+          <p style="font-weight:500;">+S$ 18</p>
+        </div>
+      </div>
+      <div class="frow" id="rf4" onclick="selRet(this,32)">
+        <div style="flex:1;min-width:0;">
+          <p class="frow-al">Singapore Airlines</p><p class="ftime">18:20 → 19:30</p>
+          <p class="fdur">1h10m · KUL T1 → SIN T3</p>
+          <p class="fbag"><i class="ti ti-luggage" style="font-size:10px;"></i> 15kg</p>
+        </div>
+        <div class="fprice" style="font-size:11px;">
+          <p style="font-size:9px;color:var(--text-sec);margin-bottom:1px;">add-on</p>
+          <p style="font-weight:500;">+S$ 32</p>
+        </div>
+      </div>
+      <div class="frow" id="rf5" onclick="selRet(this,54)">
+        <div style="flex:1;min-width:0;">
+          <p class="frow-al">Batik Air</p><p class="ftime">20:55 → 22:25</p>
+          <p class="fdur">1h30m · KUL T1 → SIN T4</p>
+          <p class="fbag"><i class="ti ti-luggage" style="font-size:10px;"></i> 15kg</p>
+        </div>
+        <div class="fprice" style="font-size:11px;">
+          <p style="font-size:9px;color:var(--text-sec);margin-bottom:1px;">add-on</p>
+          <p style="font-weight:500;">+S$ 54</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Interactive bottom bar — price updates on flight tap -->
+  <div class="sbot">
+    <div class="sbot-price" id="ret-price">+S$ 92 Return price per person</div>
+    <div class="sbot-det">Flight details</div>
+    <div class="sbot-go" onclick="nav(5)">Continue →</div>
+  </div>
+</div>
+
+<!-- ================================================
+     S5: REVIEW YOUR TRIP (H3)
+     CHANGED: Bundle card, KrisFlyer front-loaded,
+              itemized price breakdown
+================================================ -->
+<div class="sc" id="s5">
+  <div class="sbar sbar-light">
+    <span>10:27</span>
+    <div style="display:flex;gap:4px;"><i class="ti ti-wifi"></i><i class="ti ti-battery-3"></i></div>
+  </div>
+  <div class="hdr">
+    <i class="ti ti-arrow-left back" onclick="nav(4)"></i>
+    <span class="hdr-title">Review your trip</span>
+  </div>
+  <div style="padding:12px 14px;">
+    <!-- Flight summary -->
+    <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+      <i class="ti ti-plane" style="font-size:12px;color:var(--text-sec);"></i>
+      <p style="font-size:12px;font-weight:500;margin:0;">Flight</p>
+      <span class="brand-link" style="margin-left:auto;">Change</span>
+    </div>
+    <div class="field field-fw" style="margin-bottom:11px;gap:3px;">
+      <p style="font-size:12px;font-weight:500;margin:0;">Batik Air · Fri 15 May · 12:30→13:30</p>
+      <p style="font-size:10px;color:var(--text-sec);margin:0;">SIN T4 → KUL T1 · 15kg · Economy</p>
+      <div style="height:0.5px;background:var(--border);margin:4px 0;"></div>
+      <p style="font-size:12px;font-weight:500;margin:0;">MH · Sun 17 May · 10:10→11:30</p>
+      <p style="font-size:10px;color:var(--text-sec);margin:0;">KUL T1 → SIN T2 · 15kg · Economy</p>
+    </div>
+    <!-- Hotel summary -->
+    <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+      <i class="ti ti-building" style="font-size:12px;color:var(--text-sec);"></i>
+      <p style="font-size:12px;font-weight:500;margin:0;">Hotel</p>
+      <span class="brand-link" style="margin-left:auto;">Change</span>
+    </div>
+    <div class="field field-fw" style="margin-bottom:12px;gap:3px;">
+      <p style="font-size:12px;font-weight:500;margin:0;">PARKROYAL Collection KL</p>
+      <p style="font-size:10px;color:var(--text-sec);margin:0;">15–17 May · 2 nights · Urban Deluxe King</p>
+      <p style="font-size:10px;color:var(--green);margin:2px 0 0;">Free cancellation until 23:59, 14 May</p>
+    </div>
+    <!-- CHANGED: Bundle card (new) -->
+    <div class="bcard">
+      <p class="btitle">Why book as a bundle</p>
+      <div class="brow"><i class="ti ti-check" style="font-size:11px;flex-shrink:0;"></i><span>You save S$28 vs booking separately</span></div>
+      <!-- CHANGED: KrisFlyer surfaced here (was on confirmation page) -->
+      <div class="brow"><i class="ti ti-check" style="font-size:11px;flex-shrink:0;"></i><span>Earn approx. 600 KrisFlyer miles after trip</span></div>
+      <div class="brow"><i class="ti ti-check" style="font-size:11px;flex-shrink:0;"></i><span>One support number for both reservations</span></div>
+    </div>
+    <!-- CHANGED: Itemized price breakdown (was "S$221 per person") -->
+    <div style="border-top:0.5px solid var(--border);padding-top:10px;margin-bottom:14px;">
+      <div class="prow"><span>Flight (2 adults)</span><span>S$ 184</span></div>
+      <div class="prow"><span>Hotel (2 nights)</span><span>S$ 252</span></div>
+      <div class="prow"><span>Taxes & fees</span><span>S$ 6</span></div>
+      <div class="prow" style="color:var(--text-sec);padding-bottom:8px;border-bottom:0.5px solid var(--border);margin-bottom:8px;"><span>Bundle discount</span><span>− S$ 28</span></div>
+      <div class="ptotal">
+        <div>
+          <p style="font-size:11px;color:var(--text-sec);margin:0;">Total for 2 travellers</p>
+          <p style="font-size:10px;color:var(--text-sec);margin:2px 0 0;">All taxes & fees included</p>
+        </div>
+        <p class="ptotal-num">S$ 414</p>
+      </div>
+    </div>
+    <div class="btn" onclick="nav(6)">Next</div>
+  </div>
+</div>
+
+<!-- ================================================
+     S6: ENTER INFO
+     CHANGED: Price breakdown replaces avg-per-person bar
+================================================ -->
+<div class="sc" id="s6">
+  <div class="sbar sbar-light">
+    <span>10:29</span>
+    <div style="display:flex;gap:4px;"><i class="ti ti-wifi"></i><i class="ti ti-battery-3"></i></div>
+  </div>
+  <div class="hdr">
+    <i class="ti ti-arrow-left back" onclick="nav(5)"></i>
+    <span class="hdr-title">Enter info</span>
+    <!-- Step indicator ①—②—③—④ -->
+    <div style="margin-left:auto;display:flex;align-items:center;gap:3px;">
+      <div style="width:18px;height:18px;border-radius:50%;background:var(--brand);color:white;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:600;">1</div>
+      <span style="font-size:10px;color:var(--text-muted);">—</span>
+      <div style="width:18px;height:18px;border-radius:50%;border:0.5px solid var(--border);color:var(--text-sec);font-size:9px;display:flex;align-items:center;justify-content:center;">2</div>
+      <span style="font-size:10px;color:var(--text-muted);">—</span>
+      <div style="width:18px;height:18px;border-radius:50%;border:0.5px solid var(--border);color:var(--text-sec);font-size:9px;display:flex;align-items:center;justify-content:center;">3</div>
+      <span style="font-size:10px;color:var(--text-muted);">—</span>
+      <div style="width:18px;height:18px;border-radius:50%;border:0.5px solid var(--border);color:var(--text-sec);font-size:9px;display:flex;align-items:center;justify-content:center;">4</div>
+    </div>
+  </div>
+  <div style="background:var(--brand);padding:7px 14px;display:flex;align-items:center;gap:5px;flex-shrink:0;">
+    <i class="ti ti-plane" style="font-size:11px;color:white;"></i>
+    <span style="color:rgba(255,255,255,0.5);">+</span>
+    <i class="ti ti-bed" style="font-size:11px;color:white;"></i>
+    <span style="font-size:11px;color:white;font-weight:500;">Book together and save S$28 on this trip</span>
+  </div>
+  <!-- Trip summary rows -->
+  <div class="sec">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;cursor:pointer;">
+      <div style="display:flex;align-items:center;gap:5px;"><i class="ti ti-plane" style="font-size:11px;"></i><span style="font-size:12px;">Fri, May 15 · Singapore → Kuala Lumpur</span></div>
+      <i class="ti ti-chevron-right" style="font-size:12px;color:var(--text-sec);"></i>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;cursor:pointer;">
+      <div style="display:flex;align-items:center;gap:5px;"><i class="ti ti-plane" style="font-size:11px;transform:scaleX(-1);display:inline-block;"></i><span style="font-size:12px;">Sun, May 17 · Kuala Lumpur → Singapore</span></div>
+      <i class="ti ti-chevron-right" style="font-size:12px;color:var(--text-sec);"></i>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;cursor:pointer;">
+      <div style="display:flex;align-items:center;gap:5px;"><i class="ti ti-building" style="font-size:11px;"></i><span style="font-size:12px;">May 15–17 · 1 room · 2 nights</span></div>
+      <i class="ti ti-chevron-right" style="font-size:12px;color:var(--text-sec);"></i>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+      <span style="font-size:12px;">Notices 6 · Baggage & policies</span>
+      <i class="ti ti-chevron-right" style="font-size:12px;color:var(--text-sec);"></i>
+    </div>
+  </div>
+  <!-- Passengers -->
+  <div class="sec">
+    <p class="stitle">Select Passengers</p>
+    <div class="field" style="justify-content:space-between;margin-bottom:8px;">
+      <span style="font-size:13px;font-weight:500;">TRAVELLER ONE</span>
+      <i class="ti ti-edit" style="font-size:14px;color:var(--text-sec);"></i>
+    </div>
+    <div class="field" style="cursor:pointer;">
+      <i class="ti ti-circle-plus" style="font-size:15px;color:#444441;"></i>
+      <span style="font-size:13px;color:#444441;">Add Passengers</span>
+    </div>
+  </div>
+  <!-- Contact -->
+  <div class="sec">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <p class="stitle" style="margin:0;">Contact</p><span class="brand-link">Edit info</span>
+    </div>
+    <p style="font-size:12px;font-weight:500;margin:0 0 2px;">LINHUI ZHOU</p>
+    <p style="font-size:11px;color:var(--text-sec);margin:0 0 1px;">+86 186 0199 2470</p>
+    <p style="font-size:11px;color:var(--text-sec);margin:0;">traveller@email.com</p>
+  </div>
+  <!-- Baggage -->
+  <div class="sec">
+    <div style="display:flex;align-items:center;gap:4px;margin-bottom:4px;">
+      <p class="stitle" style="margin:0;">Baggage allowance</p>
+      <i class="ti ti-info-circle" style="font-size:12px;color:var(--text-sec);"></i>
+    </div>
+    <p style="font-size:10px;color:var(--brand);margin:0 0 8px;">Adding baggage now is cheaper than at the airport!</p>
+    <div class="irow">
+      <i class="ti ti-backpack" style="font-size:15px;color:#5F5E5A;margin-top:1px;flex-shrink:0;"></i>
+      <div><p style="font-size:11px;font-weight:500;margin:0;">Personal item</p><p style="font-size:10px;color:var(--text-sec);margin:2px 0 0;">Included: 1 piece, weight counted in carry-on allowance, per person</p></div>
+    </div>
+    <div class="irow">
+      <i class="ti ti-luggage" style="font-size:15px;color:#BA7517;margin-top:1px;flex-shrink:0;"></i>
+      <div><p style="font-size:11px;font-weight:500;margin:0;">Carry-on baggage</p><p style="font-size:10px;color:var(--text-sec);margin:2px 0 0;">Included: 1 piece, 7 kg total (incl. personal item), per person</p></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <div class="irow" style="margin:0;flex:1;">
+        <i class="ti ti-briefcase" style="font-size:15px;color:var(--text);margin-top:1px;flex-shrink:0;"></i>
+        <div><p style="font-size:11px;font-weight:500;margin:0;">Checked baggage</p><p style="font-size:10px;color:var(--text-sec);margin:2px 0 0;">Included: 15 kg total per person</p></div>
+      </div>
+      <div style="border:0.5px solid var(--brand);color:var(--brand);font-size:10px;padding:4px 8px;border-radius:6px;white-space:nowrap;cursor:pointer;flex-shrink:0;">Add more</div>
+    </div>
+  </div>
+  <!-- Trip Coins -->
+  <div class="sec" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+    <div>
+      <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;">
+        <p class="stitle" style="margin:0;">Trip Coins</p>
+        <i class="ti ti-info-circle" style="font-size:12px;color:var(--text-sec);"></i>
+      </div>
+      <p style="font-size:10px;color:var(--text-sec);">You'll earn 61 Trip Coins (approx. S$0.77) after your trip</p>
+    </div>
+    <div style="width:28px;height:28px;border-radius:50%;background:#FAC775;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <i class="ti ti-coin" style="font-size:14px;color:var(--amber);"></i>
+    </div>
+  </div>
+  <!-- Promo codes -->
+  <div class="sec">
+    <p class="stitle">Promo codes</p>
+    <p style="font-size:11px;color:var(--text-sec);">Please add a passenger first</p>
+  </div>
+  <!-- Terms -->
+  <div style="padding:10px 14px;border-bottom:0.5px solid var(--border);">
+    <p style="font-size:10px;color:var(--text-sec);line-height:1.6;">By proceeding, I acknowledge that I have read and agree to Trip.com's <span style="color:var(--brand);">Terms of Use</span> and <span style="color:var(--brand);">Privacy Statement</span> for Flight + Hotel bookings.</p>
+  </div>
+  <!-- CHANGED: itemized price replaces "avg per person" bar -->
+  <div style="padding:12px 14px;">
+    <div class="prow"><span>Flight (2 adults)</span><span>S$ 184</span></div>
+    <div class="prow"><span>Hotel (2 nights)</span><span>S$ 252</span></div>
+    <div class="prow"><span>Taxes & fees</span><span>S$ 6</span></div>
+    <div class="prow" style="color:var(--text-sec);padding-bottom:8px;border-bottom:0.5px solid var(--border);margin-bottom:8px;"><span>Bundle discount</span><span>− S$ 28</span></div>
+    <div class="ptotal" style="margin-bottom:14px;">
+      <div>
+        <p style="font-size:11px;color:var(--text-sec);margin:0;">Total for 2 travellers</p>
+        <p style="font-size:10px;color:var(--text-sec);margin:2px 0 0;">All taxes & fees included</p>
+      </div>
+      <p style="font-size:18px;font-weight:500;margin:0;color:var(--text);">S$ 414</p>
+    </div>
+    <div class="btn" style="margin-bottom:20px;">Continue</div>
+  </div>
+</div>
+
+</div><!-- /.phone -->
+
+<div class="dots" id="dots"></div>
+<p class="slabel" id="slabel"></p>
+
+<script>
+/* ====================================================
+   NAVIGATION  —  nav(n) to jump to any screen
+==================================================== */
+var cur = 0;
+var TOTAL = 7;
+var LABELS = [
+  'F+H 搜索入口',
+  '酒店结果 · Step 1 (H2)',
+  '房型选择',
+  '去程机票 · Step 2',
+  '回程机票 · 分屏交互',
+  '行程确认 · Step 3 (H3)',
+  '出行信息 · Enter Info'
+];
+
+function nav(n) {
+  document.querySelectorAll('.sc, .scf').forEach(function(el) { el.classList.remove('on'); });
+  var t = document.getElementById('s' + n);
+  t.classList.add('on');
+  t.scrollTop = 0;
+  cur = n;
+  renderDots();
+  document.getElementById('slabel').textContent =
+    'Screen ' + (n + 1) + ' / ' + TOTAL + '  ·  ' + LABELS[n];
+}
+
+function renderDots() {
+  var dc = document.getElementById('dots');
+  dc.innerHTML = '';
+  for (var i = 0; i < TOTAL; i++) {
+    var d = document.createElement('div');
+    d.className = 'dot' + (i === cur ? ' on' : '');
+    (function(idx) { d.onclick = function() { nav(idx); }; })(i);
+    dc.appendChild(d);
+  }
+}
+
+/* ====================================================
+   DEPARTURE FLIGHT  —  tap to highlight, then advance
+==================================================== */
+function selDep(el) {
+  document.querySelectorAll('#s3 .frow').forEach(function(r) { r.classList.remove('sel'); });
+  el.classList.add('sel');
+  setTimeout(function() { nav(4); }, 320);
+}
+
+/* ====================================================
+   RETURN FLIGHT  —  tap to highlight + update price bar
+==================================================== */
+var RET_BASE = 92;
+
+function selRet(el, adj) {
+  document.querySelectorAll('#s4 .frow').forEach(function(r) { r.classList.remove('sel'); });
+  el.classList.add('sel');
+  document.getElementById('ret-price').textContent =
+    '+S$ ' + (RET_BASE + adj) + ' Return price per person';
+}
+
+/* ====================================================
+   INIT
+==================================================== */
+nav(0);
+</script>
+
+</body>
+</html>
